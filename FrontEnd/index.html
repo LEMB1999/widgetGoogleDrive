@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Upload</title>
+</head>
+<body>
+    
+    <div class="container-form"> 
+        <input id="fileUpload" type="file" placeholder="Please Select A File " >
+        <input id="uploadButton" type="button" value="upload">
+    </div>
+
+    <script>
+
+    
+        const toBase64  = (file) => new Promise ((resolve,reject)=>{
+           
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = err => reject(err);
+
+        })
+
+
+        document.querySelector("#uploadButton").addEventListener("click",async ()=>{
+            const fileInput = document.querySelector("#fileUpload");
+            const file = fileInput.files[0];
+            const stringBase64 = await toBase64(file);
+            try {
+                const response  = await fetch("http://localhost:3000/file",{
+                    method:"POST",
+                    headers:{ "Content-type":"application/json"},
+                    body: JSON.stringify({file:stringBase64})
+                });
+                 const info = await response.json();
+                 console.log(info);
+            }catch(err){
+                console.log(err);
+            }
+        });
+
+        
+    </script>
+
+</body>
+</html>

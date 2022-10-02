@@ -1,8 +1,8 @@
-const fs = require('fs');
-const path = require('path');
-const process = require('process');
-const {authenticate} = require('@google-cloud/local-auth');
-const {google} = require('googleapis');
+import fs  from 'fs';
+import path  from 'path';
+import process from  'process';
+import {authenticate}  from '@google-cloud/local-auth';
+import {google}  from 'googleapis';
 
 // If modifying these scopes, delete token.json.
 const SCOPES = ['https://www.googleapis.com/auth/drive.metadata.readonly','https://www.googleapis.com/auth/drive'];
@@ -69,7 +69,9 @@ async function authorize() {
  * Lists the names and IDs of up to 10 files.
  * @param {OAuth2Client} authClient An authorized OAuth2 client.
  */
-async function listFiles(authClient) {
+export async function listFiles() {
+
+  const authClient = await authorize();
   const drive = google.drive({version: 'v3', auth: authClient});
   const res = await drive.files.list({
     pageSize: 10,
@@ -90,18 +92,22 @@ async function listFiles(authClient) {
 /**
  * Upload file in specific Folder 
 */
-async function uploadFile(auth,folderId){
-     
+export async function uploadFile(file,folderId){
+    
+    const auth = await authorize();
     const service = google.drive({version: 'v3', auth});
     // TODO(developer): set folder Id
     //folderId = '1sKW3JTZ3Bk62f31xIuS0s_4BDxCbDmwS';
     const fileMetadata = {
-      name: 'test.xlsx',
+      name: 'testv2.xlsx',
       parents: [folderId],
     };
 
+    console.log(typeof file);
+    file = file.slice(file.indexOf(","));
+    console.log({file})
     const media = {      
-      body: fs.createReadStream('test.xlsx'),
+      body: file //fs.createReadStream('test.xlsx'),
     };
   
     try {
@@ -119,8 +125,3 @@ async function uploadFile(auth,folderId){
   
 }
 
- 
-
-
-authorize().then(listFiles).catch(console.error);
-authorize().then(uploadFile);
